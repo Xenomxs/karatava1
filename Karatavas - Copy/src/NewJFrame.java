@@ -17,7 +17,7 @@ private HangmanPanel hangmanPanel;
 
     private void initializeGame() {
         minejums = svitras(vards);
-        updateWordDisplay();
+        hangmanPanel = new HangmanPanel();
         hangmanPanel.reset();
     }
 
