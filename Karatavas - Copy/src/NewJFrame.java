@@ -2,27 +2,49 @@ import java.awt.Color;
 import java.awt.Graphics;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import java.io.File;
+import java.util.Random;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class NewJFrame extends javax.swing.JFrame {
-    private String vards = "pasaka";
-    private String minejums;
-    private int kludas = 0;
+    private static final String FILE_PATH = "vardi.txt";
+    private static final int MAX_WORDS = 10;
 
-private HangmanPanel hangmanPanel;
+    private String[] vardi = new String[MAX_WORDS];
+    private String minejums = "";
+    private int kludas = 0;
+    private String vardio;
+
+    private HangmanPanel hangmanPanel;
 
     public NewJFrame() {
         initComponents();
         initializeGame();
+        try {
+            Scanner ievads = new Scanner(new File(FILE_PATH));
+            int wordCount = 0;
+            while (ievads.hasNext() && wordCount < MAX_WORDS) {
+                vardi[wordCount++] = ievads.next();
+            }
+            if (wordCount > 0) {
+                vardio = vardi[new Random().nextInt(wordCount)];
+            } else {
+                JOptionPane.showMessageDialog(this, "Nav vārdu faila vai ir par maz vārdu.");
+            }
+        } catch (FileNotFoundException ex) {
+            JOptionPane.showMessageDialog(this, "Nav faila");
+        }
     }
 
     private void initializeGame() {
-        minejums = svitras(vards);
+        minejums = svitras(vardio);
         hangmanPanel = new HangmanPanel();
         hangmanPanel.reset();
     }
 
     public String svitras(String s) {
-        StringBuilder svitrasBuilder = new StringBuilder();
+        var svitrasBuilder = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             svitrasBuilder.append("-");
         }
@@ -40,28 +62,26 @@ private HangmanPanel hangmanPanel;
     }
 
         private void zimet(int kludas) {
-        // Implement your drawing logic here if needed
     }
 
-    private void checkGuess(char burts) {
-        if (vards.contains(String.valueOf(burts))) {
-            minejums = aizvieto(vards, minejums, burts);
-            updateWordDisplay();
+private void checkGuess(char burts) {
+    if (vardio.contains(String.valueOf(burts))) {
+        minejums = aizvieto(vardio, minejums, burts);
+        updateWordDisplay();
 
-            if (vards.equals(minejums)) {
-                uzvara();
-                initializeGame();
-            }
-        } else {
-            kludas++;
-            zimet(kludas);
-
-            if (kludas == 10) {
-                zaudet();
-                initializeGame();
-            }
+        if (minejums.equals(vardio)) {
+            uzvara();
+            initializeGame();
+        }
+    } else {
+        kludas++;
+        hangmanPanel.drawNextPart();
+        if (kludas == 6) {
+            zaudet();
+            initializeGame();
         }
     }
+}
 
     private void updateWordDisplay() {
         WordDisplay.setText(minejums);
@@ -70,17 +90,15 @@ private HangmanPanel hangmanPanel;
 
     private void uzvara() {
         JOptionPane.showMessageDialog(this, "Uzvara!");
-        // Implement any additional logic for winning
     }
 
     private void zaudet() {
-        JOptionPane.showMessageDialog(this, "Zaudējums! Vārds bija: " + vards);
-        // Implement any additional logic for losing
+        JOptionPane.showMessageDialog(this, "Zaudējums! Vārds bija: " + vardio);
     }
 
  
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
 
         zimejums = new javax.swing.JPanel();
@@ -117,7 +135,7 @@ private HangmanPanel hangmanPanel;
             }
         });
 
-        Reset.setText("Reset");
+        Reset.setText("Start");
         Reset.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ResetActionPerformed(evt);
@@ -167,24 +185,25 @@ private HangmanPanel hangmanPanel;
         );
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>                        
 
-    private void ievadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ievadeActionPerformed
-    }//GEN-LAST:event_ievadeActionPerformed
+    private void ievadeActionPerformed(java.awt.event.ActionEvent evt) {                                       
+    }                                      
 
-    private void SubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SubmitActionPerformed
-        char burts = ievade.getText().charAt(0); // Get the first character
+    private void SubmitActionPerformed(java.awt.event.ActionEvent evt) {                                       
+        char burts = ievade.getText().charAt(0);
         if (Character.isLetter(burts)) {
             checkGuess(burts);
         } else {
             JOptionPane.showMessageDialog(this, "Lūdzu ievadiet derīgu burtu.");
         }
         ievade.setText("");
-    }//GEN-LAST:event_SubmitActionPerformed
+    }                                      
 
-    private void ResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetActionPerformed
+    private void ResetActionPerformed(java.awt.event.ActionEvent evt) {                                      
         initializeGame();
-    }//GEN-LAST:event_ResetActionPerformed
+        Reset.setText("Reset");
+    }                                     
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -217,14 +236,14 @@ private HangmanPanel hangmanPanel;
         });
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify                     
     private javax.swing.JButton Reset;
     private javax.swing.JButton Submit;
     private javax.swing.JTextField WordDisplay;
     private javax.swing.JTextField ievade;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel zimejums;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration                   
 private class HangmanPanel extends JPanel {
      private int partsToDraw = 0;
 
@@ -243,7 +262,6 @@ private class HangmanPanel extends JPanel {
             super.paintComponent(g);
 
             int width = getWidth();
-            int height = getHeight();
 
             g.setColor(Color.BLACK);
 
